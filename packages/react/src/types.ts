@@ -63,4 +63,5 @@ export interface GraphExplorerProps {
   onNodeSelect?: (node: TxNode | null) => void
   onNodeExpand?: (address: string) => void
   onNodeDelete?: (address: string) => void
+  className?: string
 }

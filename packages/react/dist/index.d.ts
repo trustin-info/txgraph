@@ -57,6 +57,7 @@ interface GraphExplorerProps {
     onNodeSelect?: (node: TxNode | null) => void;
     onNodeExpand?: (address: string) => void;
     onNodeDelete?: (address: string) => void;
+    className?: string;
 }
 
 declare function GraphExplorer({ nodes: apiNodes, edges: apiEdges, stats, loading, expandingNode, onNodeSelect, onNodeExpand, onNodeDelete, selectedAddress, }: GraphExplorerProps): react_jsx_runtime.JSX.Element;
