@@ -5,6 +5,9 @@ export default defineConfig({
   ignoreDeadLinks: true,
   description: 'Blockchain transaction tracing graph — open source React components',
   base: '/txgraph/',
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/txgraph/logo.svg' }],
+  ],
   themeConfig: {
     logo: { src: '/logo.svg', alt: 'TxGraph' },
     nav: [
