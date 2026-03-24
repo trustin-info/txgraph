@@ -1,12 +1,14 @@
 name: Build & Commit Dist
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
       - 'packages/react/src/**'
       - 'packages/react/package.json'
       - 'packages/react/tsup.config.*'
+      - '.github/workflows/build-dist.yml'
 
 jobs:
   build:
