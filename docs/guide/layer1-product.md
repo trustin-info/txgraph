@@ -51,4 +51,4 @@ Switch between two renderers:
 ✅ Full feature set including AI risk scoring  
 ✅ Regular compliance checks
 
-→ For programmatic access or embedding in your own app, see [Layer 2: Run Demo Locally](/guide/layer2-demo) or [Layer 3: Build Your Own](/guide/layer3-component).
+→ For programmatic access, see [Layer 2: AI Agent API](/guide/layer2-agent). To run locally, see [Layer 3: Local Demo](/guide/layer3-demo). To embed in your own app, see [Layer 4: Build Your Own](/guide/layer4-component).

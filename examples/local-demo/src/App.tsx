@@ -321,7 +321,7 @@ export default function App() {
           <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, color: c.dimmed }}>
             <div style={{ fontSize: 48 }}>🔍</div>
             <div style={{ fontSize: 15 }}>Enter an address and click <strong>Explore</strong></div>
-            <div style={{ fontSize: 12, color: c.dimmed }}>Requires a TrustIn API key in <code>.env</code></div>
+            <div style={{ fontSize: 12, color: c.dimmed }}>Powered by TrustIn API</div>
           </div>
         )}
         {(graph || loading) && (

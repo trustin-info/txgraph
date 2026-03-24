@@ -4,13 +4,13 @@ TxGraph components are designed to work with the **TrustIn graph_explore API**. 
 
 ## Authentication
 
-Contact [info@trustin.info](mailto:info@trustin.info) to obtain an API key.
-
-Include the key in all requests:
+The TrustIn API works without an API key. You can optionally include one for higher rate limits:
 
 ```
 X-Api-Key: your_api_key_here
 ```
+
+Contact [info@trustin.info](mailto:info@trustin.info) to obtain an API key for production use.
 
 ## Endpoints
 
@@ -25,7 +25,6 @@ Explore transaction graph starting from a given address.
 ```http
 POST /api/v1/graph_explore
 Content-Type: application/json
-X-Api-Key: your_api_key_here
 ```
 
 ```json
@@ -98,8 +97,8 @@ X-Api-Key: your_api_key_here
 ```json
 {
   "success": false,
-  "error": "Invalid API key",
-  "code": 401
+  "error": "Rate limit exceeded",
+  "code": 429
 }
 ```
 

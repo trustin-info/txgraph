@@ -10,7 +10,6 @@ The `/trace-graph` skill guides you through specifying parameters, starts the lo
 
 - [Claude Code](https://claude.com/claude-code) installed
 - Node.js >= 18, pnpm >= 8
-- A TrustIn API key (contact [info@trustin.info](mailto:info@trustin.info))
 
 ## Usage
 
@@ -41,7 +40,6 @@ You'll be prompted for:
 ### 2. Environment Setup
 
 Claude checks that everything is ready:
-- Creates `examples/local-demo/.env` with your API key if missing
 - Installs dependencies if needed
 - Builds the core `@trustin/txgraph` package
 

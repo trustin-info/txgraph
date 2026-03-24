@@ -6,7 +6,6 @@ Run TxGraph as a local Vite app connected to the TrustIn API. Ideal for evaluati
 
 - **Node.js** ≥ 18
 - **pnpm** ≥ 8 (`npm i -g pnpm`)
-- A **TrustIn API key** (contact [info@trustin.info](mailto:info@trustin.info))
 
 ## Quick Start
 
@@ -18,19 +17,15 @@ cd txgraph
 # 2. Install dependencies
 pnpm install
 
-# 3. Configure your API key
-cp examples/local-demo/.env.example examples/local-demo/.env
-# Edit .env and set VITE_TRUSTIN_API_KEY=your_key_here
-
-# 4. Start the demo
+# 3. Start the demo
 pnpm dev:demo
 ```
 
 Open [http://localhost:5173](http://localhost:5173)
 
-## Configuration
+## Configuration (Optional)
 
-Edit `examples/local-demo/.env`:
+The demo works out of the box without any API key. For higher rate limits, create `examples/local-demo/.env`:
 
 ```env
 VITE_TRUSTIN_API_URL=https://api.trustin.info
@@ -40,7 +35,7 @@ VITE_TRUSTIN_API_KEY=your_api_key_here
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `VITE_TRUSTIN_API_URL` | `https://api.trustin.info` | API base URL |
-| `VITE_TRUSTIN_API_KEY` | — | Your API key (required) |
+| `VITE_TRUSTIN_API_KEY` | — | Optional API key for higher rate limits |
 
 ## Using the Demo
 

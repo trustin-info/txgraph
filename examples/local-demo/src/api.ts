@@ -12,14 +12,16 @@ export interface GraphExploreParams {
 
 export async function exploreGraph(params: GraphExploreParams): Promise<TxGraph> {
   const apiUrl = import.meta.env.VITE_TRUSTIN_API_URL || 'https://api.trustin.info'
-  const apiKey = import.meta.env.VITE_TRUSTIN_API_KEY as string
+  const apiKey = import.meta.env.VITE_TRUSTIN_API_KEY as string | undefined
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  }
+  if (apiKey) headers['X-Api-Key'] = apiKey
 
   const res = await fetch(`${apiUrl}/api/v1/graph_explore`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Api-Key': apiKey,
-    },
+    headers,
     body: JSON.stringify({
       address: params.address,
       chain_name: params.chain,
