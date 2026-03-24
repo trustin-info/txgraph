@@ -1,0 +1,210 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="960" y2="520" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="edge1" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#8b5cf6"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+    <linearGradient id="edge2" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#06b6d4"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="960" height="520" rx="16" fill="url(#bg)"/>
+
+  <!-- Grid dots -->
+  <g opacity="0.08">
+    <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+      <circle cx="10" cy="10" r="1" fill="#94a3b8"/>
+    </pattern>
+    <rect width="960" height="520" fill="url(#dots)"/>
+  </g>
+
+  <!-- Edges (smooth bezier curves) -->
+  <g stroke-width="2" fill="none" opacity="0.7">
+    <!-- Root to Node A -->
+    <path d="M 175,260 C 270,260 280,135 370,135" stroke="url(#edge1)" marker-end="url(#arrow1)"/>
+    <!-- Root to Node B -->
+    <path d="M 175,260 C 270,260 280,260 370,260" stroke="url(#edge1)"/>
+    <!-- Root to Node C -->
+    <path d="M 175,260 C 270,260 280,385 370,385" stroke="url(#edge1)"/>
+    <!-- Node A to D -->
+    <path d="M 500,135 C 580,135 590,100 665,100" stroke="url(#edge1)"/>
+    <!-- Node A to E -->
+    <path d="M 500,135 C 580,135 590,190 665,190" stroke="url(#edge1)"/>
+    <!-- Node B to E -->
+    <path d="M 500,260 C 580,260 590,190 665,190" stroke="url(#edge2)"/>
+    <!-- Node B to F -->
+    <path d="M 500,260 C 580,260 590,310 665,310" stroke="url(#edge1)"/>
+    <!-- Node C to F -->
+    <path d="M 500,385 C 580,385 590,310 665,310" stroke="url(#edge2)"/>
+    <!-- Node C to G -->
+    <path d="M 500,385 C 580,385 590,420 665,420" stroke="url(#edge1)"/>
+    <!-- D to H -->
+    <path d="M 795,100 C 845,100 845,155 890,155" stroke="url(#edge1)" opacity="0.4" stroke-dasharray="4 3"/>
+    <!-- E to H -->
+    <path d="M 795,190 C 845,190 845,155 890,155" stroke="url(#edge2)" opacity="0.4" stroke-dasharray="4 3"/>
+    <!-- F to I -->
+    <path d="M 795,310 C 845,310 845,365 890,365" stroke="url(#edge1)" opacity="0.4" stroke-dasharray="4 3"/>
+    <!-- G to I -->
+    <path d="M 795,420 C 845,420 845,365 890,365" stroke="url(#edge2)" opacity="0.4" stroke-dasharray="4 3"/>
+  </g>
+
+  <!-- Arrow markers via small triangles -->
+  <g fill="#8b5cf6" opacity="0.7">
+    <polygon points="370,130 358,126 358,134"/>
+    <polygon points="665,95 653,91 653,99"/>
+    <polygon points="665,185 653,181 653,189"/>
+    <polygon points="665,305 653,301 653,309"/>
+    <polygon points="665,415 653,411 653,419"/>
+  </g>
+  <g fill="#06b6d4" opacity="0.7">
+    <polygon points="665,190 653,186 653,194"/>
+    <polygon points="665,310 653,306 653,314"/>
+  </g>
+
+  <!-- Edge labels -->
+  <g font-family="monospace" font-size="9" fill="#94a3b8">
+    <rect x="230" y="186" width="82" height="16" rx="3" fill="#1e293b" stroke="#334155" stroke-width="0.5"/>
+    <text x="271" y="198" text-anchor="middle">1.5K USDT</text>
+    <rect x="230" y="252" width="82" height="16" rx="3" fill="#1e293b" stroke="#334155" stroke-width="0.5"/>
+    <text x="271" y="264" text-anchor="middle">2.0K USDT</text>
+    <rect x="230" y="318" width="82" height="16" rx="3" fill="#1e293b" stroke="#334155" stroke-width="0.5"/>
+    <text x="271" y="330" text-anchor="middle">800 USDC</text>
+    <rect x="553" y="148" width="70" height="16" rx="3" fill="#1e293b" stroke="#334155" stroke-width="0.5"/>
+    <text x="588" y="160" text-anchor="middle">500 ETH</text>
+    <rect x="553" y="222" width="74" height="16" rx="3" fill="#1e293b" stroke="#334155" stroke-width="0.5"/>
+    <text x="590" y="234" text-anchor="middle">1.2K USDT</text>
+    <rect x="553" y="282" width="70" height="16" rx="3" fill="#1e293b" stroke="#334155" stroke-width="0.5"/>
+    <text x="588" y="294" text-anchor="middle">300 DAI</text>
+    <rect x="553" y="398" width="74" height="16" rx="3" fill="#1e293b" stroke="#334155" stroke-width="0.5"/>
+    <text x="590" y="410" text-anchor="middle">190 USDT</text>
+  </g>
+
+  <!-- Root Node (highlighted) -->
+  <g filter="url(#glow)" transform="translate(80,225)">
+    <rect width="95" height="70" rx="8" fill="rgba(59,130,246,0.12)" stroke="#3b82f6" stroke-width="2"/>
+    <rect x="6" y="6" width="36" height="14" rx="3" fill="#3b82f6"/>
+    <text x="24" y="16" font-family="monospace" font-size="8" font-weight="700" fill="#fff" text-anchor="middle">ROOT</text>
+    <text x="48" y="34" font-family="monospace" font-size="11" fill="#f1f5f9" text-anchor="middle">0xd8dA…6045</text>
+    <rect x="6" y="44" width="46" height="14" rx="3" fill="rgba(34,197,94,0.15)"/>
+    <text x="29" y="54" font-family="monospace" font-size="8" fill="#22c55e" text-anchor="middle">Low</text>
+    <text x="62" y="54" font-family="monospace" font-size="8" fill="#64748b">d0</text>
+  </g>
+
+  <!-- Node A -->
+  <g filter="url(#shadow)" transform="translate(370,100)">
+    <rect width="130" height="70" rx="8" fill="rgba(245,158,11,0.08)" stroke="#f59e0b" stroke-width="1.5"/>
+    <rect x="6" y="6" width="52" height="14" rx="3" fill="rgba(99,102,241,0.15)"/>
+    <text x="32" y="16" font-family="sans-serif" font-size="8" font-weight="600" fill="#818cf8" text-anchor="middle">Exchange</text>
+    <text x="65" y="34" font-family="monospace" font-size="11" fill="#f1f5f9" text-anchor="middle">TLHje…i1gM</text>
+    <rect x="6" y="44" width="52" height="14" rx="3" fill="rgba(245,158,11,0.15)"/>
+    <text x="32" y="54" font-family="monospace" font-size="8" fill="#f59e0b" text-anchor="middle">Medium</text>
+    <text x="68" y="54" font-family="monospace" font-size="8" fill="#64748b">d1</text>
+  </g>
+
+  <!-- Node B (selected - glow) -->
+  <g filter="url(#glow)" transform="translate(370,225)">
+    <rect width="130" height="70" rx="8" fill="rgba(107,114,128,0.08)" stroke="#3b82f6" stroke-width="2"/>
+    <text x="65" y="30" font-family="monospace" font-size="11" fill="#f1f5f9" text-anchor="middle">TVDdE…qFsR</text>
+    <rect x="6" y="44" width="58" height="14" rx="3" fill="rgba(107,114,128,0.12)"/>
+    <text x="35" y="54" font-family="monospace" font-size="8" fill="#6b7280" text-anchor="middle">Unknown</text>
+    <text x="74" y="54" font-family="monospace" font-size="8" fill="#64748b">d1</text>
+  </g>
+
+  <!-- Node C -->
+  <g filter="url(#shadow)" transform="translate(370,350)">
+    <rect width="130" height="70" rx="8" fill="rgba(239,68,68,0.08)" stroke="#ef4444" stroke-width="1.5"/>
+    <rect x="6" y="6" width="44" height="14" rx="3" fill="rgba(99,102,241,0.15)"/>
+    <text x="28" y="16" font-family="sans-serif" font-size="8" font-weight="600" fill="#818cf8" text-anchor="middle">Mixer</text>
+    <text x="65" y="34" font-family="monospace" font-size="11" fill="#f1f5f9" text-anchor="middle">TRKQu…K3cL</text>
+    <rect x="6" y="44" width="40" height="14" rx="3" fill="rgba(239,68,68,0.15)"/>
+    <text x="26" y="54" font-family="monospace" font-size="8" fill="#ef4444" text-anchor="middle">High</text>
+    <text x="56" y="54" font-family="monospace" font-size="8" fill="#64748b">d1</text>
+    <g transform="translate(110, 2)">
+      <circle cx="0" cy="0" r="6" fill="none" stroke="#f59e0b" stroke-width="1"/>
+      <text x="0" y="3" font-size="8" fill="#f59e0b" text-anchor="middle">!</text>
+    </g>
+  </g>
+
+  <!-- Depth-2 nodes (smaller, dimmed) -->
+  <g opacity="0.55">
+    <!-- Node D -->
+    <g filter="url(#shadow)" transform="translate(665,65)">
+      <rect width="130" height="70" rx="8" fill="rgba(107,114,128,0.06)" stroke="#6b7280" stroke-width="1"/>
+      <text x="65" y="30" font-family="monospace" font-size="10" fill="#94a3b8" text-anchor="middle">TAT72…p15z</text>
+      <text x="65" y="50" font-family="monospace" font-size="8" fill="#64748b" text-anchor="middle">Unknown  d2</text>
+    </g>
+    <!-- Node E -->
+    <g filter="url(#shadow)" transform="translate(665,155)">
+      <rect width="130" height="70" rx="8" fill="rgba(34,197,94,0.06)" stroke="#22c55e" stroke-width="1"/>
+      <text x="65" y="30" font-family="monospace" font-size="10" fill="#94a3b8" text-anchor="middle">TPrAS…AyXS</text>
+      <text x="30" y="50" font-family="monospace" font-size="8" fill="#22c55e">Low</text>
+      <text x="60" y="50" font-family="monospace" font-size="8" fill="#64748b">d2</text>
+    </g>
+    <!-- Node F -->
+    <g filter="url(#shadow)" transform="translate(665,275)">
+      <rect width="130" height="70" rx="8" fill="rgba(245,158,11,0.06)" stroke="#f59e0b" stroke-width="1"/>
+      <rect x="6" y="6" width="52" height="14" rx="3" fill="rgba(99,102,241,0.1)"/>
+      <text x="32" y="16" font-family="sans-serif" font-size="8" font-weight="600" fill="#818cf8" text-anchor="middle" opacity="0.7">Bridge</text>
+      <text x="65" y="34" font-family="monospace" font-size="10" fill="#94a3b8" text-anchor="middle">TU6KE…h8Y0</text>
+      <text x="30" y="54" font-family="monospace" font-size="8" fill="#f59e0b">Medium</text>
+      <text x="75" y="54" font-family="monospace" font-size="8" fill="#64748b">d2</text>
+    </g>
+    <!-- Node G -->
+    <g filter="url(#shadow)" transform="translate(665,385)">
+      <rect width="130" height="70" rx="8" fill="rgba(239,68,68,0.06)" stroke="#ef4444" stroke-width="1"/>
+      <text x="65" y="30" font-family="monospace" font-size="10" fill="#94a3b8" text-anchor="middle">TPMaR…39pQ</text>
+      <text x="26" y="50" font-family="monospace" font-size="8" fill="#ef4444">High</text>
+      <text x="55" y="50" font-family="monospace" font-size="8" fill="#64748b">d2</text>
+    </g>
+  </g>
+
+  <!-- Dimmed depth-3 placeholders -->
+  <g opacity="0.25">
+    <g transform="translate(870,120)">
+      <rect width="80" height="45" rx="6" fill="rgba(107,114,128,0.06)" stroke="#6b7280" stroke-width="1" stroke-dasharray="3 2"/>
+      <text x="40" y="27" font-family="monospace" font-size="9" fill="#64748b" text-anchor="middle">d3...</text>
+    </g>
+    <g transform="translate(870,340)">
+      <rect width="80" height="45" rx="6" fill="rgba(107,114,128,0.06)" stroke="#6b7280" stroke-width="1" stroke-dasharray="3 2"/>
+      <text x="40" y="27" font-family="monospace" font-size="9" fill="#64748b" text-anchor="middle">d3...</text>
+    </g>
+  </g>
+
+  <!-- Feature badges along the bottom -->
+  <g transform="translate(0, 472)">
+    <g transform="translate(80, 0)">
+      <rect width="130" height="28" rx="14" fill="rgba(59,130,246,0.12)" stroke="rgba(59,130,246,0.3)" stroke-width="1"/>
+      <text x="65" y="18" font-family="sans-serif" font-size="11" font-weight="600" fill="#60a5fa" text-anchor="middle">Risk Scoring</text>
+    </g>
+    <g transform="translate(230, 0)">
+      <rect width="140" height="28" rx="14" fill="rgba(139,92,246,0.12)" stroke="rgba(139,92,246,0.3)" stroke-width="1"/>
+      <text x="70" y="18" font-family="sans-serif" font-size="11" font-weight="600" fill="#a78bfa" text-anchor="middle">Path Highlight</text>
+    </g>
+    <g transform="translate(390, 0)">
+      <rect width="145" height="28" rx="14" fill="rgba(6,182,212,0.12)" stroke="rgba(6,182,212,0.3)" stroke-width="1"/>
+      <text x="72" y="18" font-family="sans-serif" font-size="11" font-weight="600" fill="#22d3ee" text-anchor="middle">Dark / Light Mode</text>
+    </g>
+    <g transform="translate(555, 0)">
+      <rect width="150" height="28" rx="14" fill="rgba(34,197,94,0.12)" stroke="rgba(34,197,94,0.3)" stroke-width="1"/>
+      <text x="75" y="18" font-family="sans-serif" font-size="11" font-weight="600" fill="#4ade80" text-anchor="middle">Node Expand / Delete</text>
+    </g>
+    <g transform="translate(725, 0)">
+      <rect width="155" height="28" rx="14" fill="rgba(245,158,11,0.12)" stroke="rgba(245,158,11,0.3)" stroke-width="1"/>
+      <text x="77" y="18" font-family="sans-serif" font-size="11" font-weight="600" fill="#fbbf24" text-anchor="middle">ReactFlow + Sigma.js</text>
+    </g>
+  </g>
+</svg>
