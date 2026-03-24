@@ -36,7 +36,7 @@ jobs:
           VERSION="${TAG#v}"
           echo "Publishing version: $VERSION"
           cd packages/react
-          npm version "$VERSION" --no-git-tag-version
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
 
       - name: Publish
         run: pnpm --filter @trustin/txgraph publish --no-git-checks --access public
