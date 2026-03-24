@@ -18,14 +18,19 @@ features:
     details: Instantly trace transactions at v2.trustin.info — no setup required. Full-featured AML investigation tool.
     link: /guide/layer1-product
     linkText: Open Explorer
+  - icon: 🤖
+    title: AI Agent API
+    details: Self-register your AI agent in one request and start tracing addresses immediately. No account needed — 200 requests/day free quota. MCP-compatible.
+    link: /guide/layer2-agent
+    linkText: Agent Setup
   - icon: 💻
     title: Run Demo Locally
     details: Clone the example project and connect to TrustIn API with your API key. Full control over data and UI.
-    link: /guide/layer2-demo
+    link: /guide/layer3-demo
     linkText: Setup Guide
   - icon: 🛠
     title: Build Your Own
     details: Install @trustin/txgraph and integrate the graph components into your own app with your own data source.
-    link: /guide/layer3-component
+    link: /guide/layer4-component
     linkText: Component Docs
 ---
