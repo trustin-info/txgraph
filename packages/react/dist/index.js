@@ -80,9 +80,9 @@ function riskBgColor(risk) {
       return "rgba(107,114,128,0.06)";
   }
 }
-var ExplorerCallbacksCtx = (0, import_react.createContext)({ expandingNode: null });
+var ExplorerCallbacksCtx = (0, import_react.createContext)({ expandingNode: null, isDark: true });
 function ExplorerNode({ data, id }) {
-  const { onNodeSelect, onNodeExpand, onNodeDelete, expandingNode } = (0, import_react.useContext)(ExplorerCallbacksCtx);
+  const { onNodeSelect, onNodeExpand, onNodeDelete, expandingNode, isDark } = (0, import_react.useContext)(ExplorerCallbacksCtx);
   const d = data;
   const node = d.nodeInfo;
   const isLoading = expandingNode === node.address;
@@ -105,7 +105,7 @@ function ExplorerNode({ data, id }) {
         minHeight: 70,
         padding: "8px 12px",
         background: bg,
-        boxShadow: isSelected ? `0 0 0 3px rgba(59,130,246,0.6), 0 0 12px rgba(59,130,246,0.3)` : node.is_root ? `0 0 0 3px rgba(59,130,246,0.25)` : "0 1px 4px rgba(0,0,0,0.12)",
+        boxShadow: isSelected ? `0 0 0 3px rgba(59,130,246,0.6), 0 0 12px rgba(59,130,246,0.3)` : node.is_root ? `0 0 0 3px rgba(59,130,246,0.25)` : isDark ? "0 1px 4px rgba(0,0,0,0.12)" : "0 1px 4px rgba(0,0,0,0.08)",
         cursor: "pointer",
         userSelect: "none",
         overflow: "hidden",
@@ -174,7 +174,7 @@ function ExplorerNode({ data, id }) {
             style: {
               fontFamily: "monospace",
               fontSize: 11,
-              color: "var(--tx-heading, #ffffff)",
+              color: isDark ? "#ffffff" : "#1e293b",
               fontWeight: 400,
               letterSpacing: "0.02em"
             },
@@ -197,7 +197,7 @@ function ExplorerNode({ data, id }) {
               children: node.risk_level
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontSize: 9, color: "var(--tx-caption, #64748b)" }, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { style: { fontSize: 9, color: isDark ? "#64748b" : "#94a3b8" }, children: [
             "d",
             node.depth
           ] })
@@ -276,9 +276,7 @@ function ExplorerNode({ data, id }) {
   );
 }
 var nodeTypes = { explorerNode: ExplorerNode };
-var STRAIGHT_LINE_LENGTH = 100;
-var LINE_SPACE = 30;
-var SAME_LEVEL_THRESHOLD = 200;
+var SIBLING_SPREAD = 15;
 function AmountEdge({
   id,
   sourceX,
@@ -292,60 +290,39 @@ function AmountEdge({
   target,
   data
 }) {
+  const { isDark } = (0, import_react.useContext)(ExplorerCallbacksCtx);
   const nodes = (0, import_react2.useNodes)();
   const edges = (0, import_react2.useEdges)();
-  const selfFromNode = nodes.find((n) => n.id === source);
-  const selfToNode = nodes.find((n) => n.id === target);
-  const sameLevelEdges = edges.filter((e) => {
-    const fromNode = nodes.find((n) => n.id === e.source);
-    const toNode = nodes.find((n) => n.id === e.target);
-    if (!fromNode || !toNode || !selfFromNode || !selfToNode) return false;
-    return Math.abs(fromNode.position.x - selfFromNode.position.x) < SAME_LEVEL_THRESHOLD && Math.abs(toNode.position.x - selfToNode.position.x) < SAME_LEVEL_THRESHOLD || Math.abs(fromNode.position.x - selfToNode.position.x) < SAME_LEVEL_THRESHOLD && Math.abs(toNode.position.x - selfFromNode.position.x) < SAME_LEVEL_THRESHOLD;
-  });
-  let labelX = (sourceX + targetX) / 2;
-  let labelY = (sourceY + targetY) / 2;
-  let path;
-  if (sameLevelEdges.length <= 1) {
-    const midX = (sourceX + targetX) / 2;
-    path = `M ${sourceX} ${sourceY} C ${midX} ${sourceY}, ${midX} ${targetY}, ${targetX} ${targetY}`;
-  } else {
-    const edgeInfos = sameLevelEdges.map((e) => {
-      const sn = nodes.find((n) => n.id === e.source);
-      const tn = nodes.find((n) => n.id === e.target);
-      const sY = sn?.position?.y ?? 0;
-      const tY = tn?.position?.y ?? 0;
-      return { edgeId: e.id, idealY: (sY + tY) / 2 };
+  const sameSourceEdges = edges.filter((e) => e.source === source);
+  let spread = 0;
+  if (sameSourceEdges.length > 1) {
+    const sorted = [...sameSourceEdges].sort((a, b) => {
+      const aTo = nodes.find((n) => n.id === a.target);
+      const bTo = nodes.find((n) => n.id === b.target);
+      return (aTo?.position.y ?? 0) - (bTo?.position.y ?? 0);
     });
-    edgeInfos.sort((a, b) => a.idealY - b.idealY);
-    const assignedYs = [];
-    for (let i = 0; i < edgeInfos.length; i++) {
-      if (i === 0) {
-        assignedYs.push(edgeInfos[i].idealY);
-      } else {
-        assignedYs.push(Math.max(edgeInfos[i].idealY, assignedYs[i - 1] + LINE_SPACE));
-      }
-    }
-    const medianIdeal = edgeInfos[Math.floor(edgeInfos.length / 2)].idealY;
-    const medianAssigned = assignedYs[Math.floor(assignedYs.length / 2)];
-    const shift = medianIdeal - medianAssigned;
-    for (let i = 0; i < assignedYs.length; i++) {
-      assignedYs[i] += shift;
-    }
-    const selfIdx = edgeInfos.findIndex((ei) => ei.edgeId === id);
-    const straightY = selfIdx >= 0 ? assignedYs[selfIdx] : (sourceY + targetY) / 2;
-    const remainX = Math.max((Math.abs(targetX - sourceX) - STRAIGHT_LINE_LENGTH) / 2, 20);
-    if (targetX > sourceX) {
-      const c1EndX = sourceX + remainX;
-      const c2StartX = targetX - remainX;
-      path = `M ${sourceX},${sourceY} C ${sourceX + remainX * 0.5},${sourceY} ${sourceX + remainX * 0.5},${straightY} ${c1EndX},${straightY} L ${c2StartX},${straightY} C ${targetX - remainX * 0.5},${straightY} ${targetX - remainX * 0.5},${targetY} ${targetX},${targetY}`;
-    } else {
-      const c1EndX = sourceX - remainX;
-      const c2StartX = targetX + remainX;
-      path = `M ${sourceX},${sourceY} C ${sourceX - remainX * 0.5},${sourceY} ${sourceX - remainX * 0.5},${straightY} ${c1EndX},${straightY} L ${c2StartX},${straightY} C ${targetX + remainX * 0.5},${straightY} ${targetX + remainX * 0.5},${targetY} ${targetX},${targetY}`;
-    }
-    labelX = (sourceX + targetX) / 2;
-    labelY = straightY;
+    const idx = sorted.findIndex((e) => e.id === id);
+    spread = (idx - (sorted.length - 1) / 2) * SIBLING_SPREAD;
   }
+  const dx = targetX - sourceX;
+  const dirX = dx >= 0 ? 1 : -1;
+  const cpOffset = Math.max(Math.abs(dx) * 0.4, 80);
+  const cp1x = sourceX + dirX * cpOffset;
+  const cp1y = sourceY + spread;
+  const cp2x = targetX - dirX * cpOffset;
+  const cp2y = targetY;
+  const path = `M ${sourceX},${sourceY} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${targetX},${targetY}`;
+  const t = 0.5;
+  const mt = 1 - t;
+  const labelX = mt * mt * mt * sourceX + 3 * mt * mt * t * cp1x + 3 * mt * t * t * cp2x + t * t * t * targetX;
+  const labelY = mt * mt * mt * sourceY + 3 * mt * mt * t * cp1y + 3 * mt * t * t * cp2y + t * t * t * targetY;
+  const tx = -0.75 * sourceX - 0.75 * cp1x + 0.75 * cp2x + 0.75 * targetX;
+  const ty = -0.75 * sourceY - 0.75 * cp1y + 0.75 * cp2y + 0.75 * targetY;
+  let angle = Math.atan2(ty, tx) * (180 / Math.PI);
+  if (angle > 90) angle -= 180;
+  if (angle < -90) angle += 180;
+  const edgeData = data;
+  const isEdgeDimmed = edgeData?.isDimmed === true;
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
     /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react2.BaseEdge, { id, path, style, markerEnd }),
     label && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react2.EdgeLabelRenderer, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
@@ -355,8 +332,10 @@ function AmountEdge({
           position: "absolute",
           transformOrigin: "center",
           textAlign: "center",
-          transform: `translate(-50%, -100%) translate(${labelX}px,${labelY}px)`,
-          pointerEvents: "none"
+          transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px) rotate(${angle}deg)`,
+          pointerEvents: "none",
+          opacity: isEdgeDimmed ? 0.15 : 1,
+          transition: "opacity 0.2s"
         },
         className: "nodrag nopan",
         children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
@@ -365,15 +344,15 @@ function AmountEdge({
             style: {
               fontSize: 9,
               fontWeight: 500,
-              color: "var(--tx-body, #94a3b8)",
-              background: "var(--tx-elevated, #1e293b)",
+              color: isDark ? "#94a3b8" : "#64748b",
+              background: isDark ? "rgba(30,41,59,0.9)" : "rgba(255,255,255,0.9)",
               padding: "1px 5px",
               borderRadius: 3,
               whiteSpace: "nowrap",
-              border: "1px solid var(--tx-divider, rgba(51,65,85,0.5))"
+              border: `1px solid ${isDark ? "rgba(51,65,85,0.5)" : "rgba(203,213,225,0.8)"}`
             },
             children: [
-              data?.token && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TokenIcon, { token: data.token }),
+              typeof edgeData?.token === "string" && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(TokenIcon, { token: edgeData.token }),
               label
             ]
           }
@@ -444,7 +423,7 @@ function layoutGraph(apiNodes, apiEdges) {
       type: "amountEdge",
       animated: false,
       data: { token },
-      label: e.last_timestamp ? `${e.formatted_amount} \xB7 ${new Date(e.last_timestamp * 1e3).toISOString().replace("T", " ").slice(0, 10)}` : e.formatted_amount,
+      label: e.last_timestamp ? `${e.formatted_amount} \xB7 ${new Date(e.last_timestamp > 1e12 ? e.last_timestamp : e.last_timestamp * 1e3).toISOString().slice(0, 19).replace("T", " ")}` : e.formatted_amount,
       style: {
         stroke: edgeColor,
         strokeWidth: 1.5,
@@ -528,14 +507,19 @@ function GraphExplorer({
     setNodes(highlighted);
   }, [flowNodes, setNodes, selectedAddress, hasSelection, pathInfo]);
   (0, import_react.useEffect)(() => {
-    const highlighted = flowEdges.map((e) => ({
-      ...e,
-      style: {
-        ...e.style,
-        opacity: hasSelection && !pathInfo.pathEdges.has(e.id) ? 0.15 : 1,
-        strokeWidth: hasSelection && pathInfo.pathEdges.has(e.id) ? 2.5 : e.style?.strokeWidth ?? 1.5
-      }
-    }));
+    const highlighted = flowEdges.map((e) => {
+      const isOnPath = pathInfo.pathEdges.has(e.id);
+      const isDimmed = hasSelection && !isOnPath;
+      return {
+        ...e,
+        data: { ...e.data, isDimmed },
+        style: {
+          ...e.style,
+          opacity: isDimmed ? 0.15 : 1,
+          strokeWidth: hasSelection && isOnPath ? 2.5 : e.style?.strokeWidth ?? 1.5
+        }
+      };
+    });
     setEdges(highlighted);
   }, [flowEdges, setEdges, hasSelection, pathInfo]);
   (0, import_react.useEffect)(() => {
@@ -544,8 +528,8 @@ function GraphExplorer({
     });
   }, [flowEdges]);
   const ctxValue = (0, import_react.useMemo)(
-    () => ({ onNodeSelect, onNodeExpand, onNodeDelete, expandingNode }),
-    [onNodeSelect, onNodeExpand, onNodeDelete, expandingNode]
+    () => ({ onNodeSelect, onNodeExpand, onNodeDelete, expandingNode, isDark }),
+    [onNodeSelect, onNodeExpand, onNodeDelete, expandingNode, isDark]
   );
   return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { width: "100%", height: "100%", position: "relative" }, children: [
     /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ExplorerCallbacksCtx.Provider, { value: ctxValue, children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
@@ -581,9 +565,9 @@ function GraphExplorer({
             {
               style: {
                 fontSize: 11,
-                color: "var(--tx-body, #94a3b8)",
-                background: "var(--tx-elevated, #1e293b)",
-                border: "1px solid var(--tx-divider, rgba(51,65,85,0.5))",
+                color: isDark ? "#94a3b8" : "#64748b",
+                background: isDark ? "#1e293b" : "#ffffff",
+                border: `1px solid ${isDark ? "rgba(51,65,85,0.5)" : "rgba(203,213,225,0.8)"}`,
                 borderRadius: 6,
                 padding: "4px 10px"
               },
@@ -654,19 +638,21 @@ var REGULAR_NODE_SIZE = 0.3;
 var NODE_SPACING = 1;
 var LEVEL_SPACING = 3.5;
 var BASE_FONT_SIZE = 11;
-var controlBtnStyle = {
-  width: 28,
-  height: 28,
-  borderRadius: 4,
-  border: "1px solid var(--tx-divider, rgba(51,65,85,0.5))",
-  background: "var(--tx-elevated, #1e293b)",
-  color: "var(--tx-body, #94a3b8)",
-  cursor: "pointer",
-  fontSize: 14,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center"
-};
+function controlBtnStyle(isDark) {
+  return {
+    width: 28,
+    height: 28,
+    borderRadius: 4,
+    border: `1px solid ${isDark ? "rgba(51,65,85,0.5)" : "rgba(203,213,225,0.8)"}`,
+    background: isDark ? "#1e293b" : "#ffffff",
+    color: isDark ? "#94a3b8" : "#64748b",
+    cursor: "pointer",
+    fontSize: 14,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  };
+}
 function GraphExplorerSigma({
   nodes,
   edges,
@@ -788,7 +774,7 @@ function GraphExplorerSigma({
     });
     edges.forEach((e) => {
       try {
-        const edgeLabel = e.last_timestamp ? `${e.formatted_amount} \xB7 ${new Date(e.last_timestamp * 1e3).toISOString().replace("T", " ").slice(0, 10)}` : e.formatted_amount;
+        const edgeLabel = e.last_timestamp ? `${e.formatted_amount} \xB7 ${new Date(e.last_timestamp > 1e12 ? e.last_timestamp : e.last_timestamp * 1e3).toISOString().slice(0, 19).replace("T", " ")}` : e.formatted_amount;
         g.addEdge(e.from, e.to, {
           type: "curved",
           label: edgeLabel,
@@ -1027,9 +1013,9 @@ function GraphExplorerSigma({
           zIndex: 10
         },
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { title: "Zoom In", onClick: zoomIn, style: controlBtnStyle, children: "+" }),
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { title: "Zoom Out", onClick: zoomOut, style: controlBtnStyle, children: "\u2212" }),
-          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { title: "Fit View", onClick: handleFitView, style: controlBtnStyle, children: "\u22A1" })
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { title: "Zoom In", onClick: zoomIn, style: controlBtnStyle(isDark), children: "+" }),
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { title: "Zoom Out", onClick: zoomOut, style: controlBtnStyle(isDark), children: "\u2212" }),
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("button", { title: "Fit View", onClick: handleFitView, style: controlBtnStyle(isDark), children: "\u22A1" })
         ]
       }
     ),
@@ -1041,9 +1027,9 @@ function GraphExplorerSigma({
           top: 10,
           right: 10,
           fontSize: 11,
-          color: "var(--tx-body, #94a3b8)",
-          background: "var(--tx-elevated, #1e293b)",
-          border: "1px solid var(--tx-divider, rgba(51,65,85,0.5))",
+          color: isDark ? "#94a3b8" : "#64748b",
+          background: isDark ? "#1e293b" : "#ffffff",
+          border: `1px solid ${isDark ? "rgba(51,65,85,0.5)" : "rgba(203,213,225,0.8)"}`,
           borderRadius: 6,
           padding: "4px 10px",
           zIndex: 10
@@ -1060,9 +1046,9 @@ function GraphExplorerSigma({
           left: "50%",
           transform: "translateX(-50%)",
           fontSize: 10,
-          color: "var(--tx-caption, #64748b)",
-          background: "var(--tx-elevated, #1e293b)",
-          border: "1px solid var(--tx-divider, rgba(51,65,85,0.5))",
+          color: isDark ? "#64748b" : "#94a3b8",
+          background: isDark ? "#1e293b" : "#ffffff",
+          border: `1px solid ${isDark ? "rgba(51,65,85,0.5)" : "rgba(203,213,225,0.8)"}`,
           borderRadius: 6,
           padding: "3px 10px",
           zIndex: 10,

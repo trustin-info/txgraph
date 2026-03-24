@@ -68,9 +68,10 @@ interface ExplorerCtx {
   onNodeExpand?: (address: string) => void
   onNodeDelete?: (address: string) => void
   expandingNode: string | null
+  isDark: boolean
 }
 
-const ExplorerCallbacksCtx = createContext<ExplorerCtx>({ expandingNode: null })
+const ExplorerCallbacksCtx = createContext<ExplorerCtx>({ expandingNode: null, isDark: true })
 
 // ─── Custom Node data type ────────────────────────────────────────────────────
 
@@ -81,7 +82,7 @@ interface ExplorerNodeData extends Record<string, unknown> {
 // ─── Custom Node Component ────────────────────────────────────────────────────
 
 function ExplorerNode({ data, id }: NodeProps) {
-  const { onNodeSelect, onNodeExpand, onNodeDelete, expandingNode } = useContext(ExplorerCallbacksCtx)
+  const { onNodeSelect, onNodeExpand, onNodeDelete, expandingNode, isDark } = useContext(ExplorerCallbacksCtx)
   const d = data as ExplorerNodeData & { isSelected?: boolean; isOnPath?: boolean; isDimmed?: boolean }
   const node = d.nodeInfo
   const isLoading = expandingNode === node.address
@@ -112,7 +113,7 @@ function ExplorerNode({ data, id }: NodeProps) {
           ? `0 0 0 3px rgba(59,130,246,0.6), 0 0 12px rgba(59,130,246,0.3)`
           : node.is_root
             ? `0 0 0 3px rgba(59,130,246,0.25)`
-            : '0 1px 4px rgba(0,0,0,0.12)',
+            : isDark ? '0 1px 4px rgba(0,0,0,0.12)' : '0 1px 4px rgba(0,0,0,0.08)',
         cursor: 'pointer',
         userSelect: 'none',
         overflow: 'hidden',
@@ -188,7 +189,7 @@ function ExplorerNode({ data, id }: NodeProps) {
         style={{
           fontFamily: 'monospace',
           fontSize: 11,
-          color: 'var(--tx-heading, #ffffff)',
+          color: isDark ? '#ffffff' : '#1e293b',
           fontWeight: 400,
           letterSpacing: '0.02em',
         }}
@@ -211,7 +212,7 @@ function ExplorerNode({ data, id }: NodeProps) {
         >
           {node.risk_level}
         </span>
-        <span style={{ fontSize: 9, color: 'var(--tx-caption, #64748b)' }}>d{node.depth}</span>
+        <span style={{ fontSize: 9, color: isDark ? '#64748b' : '#94a3b8' }}>d{node.depth}</span>
       </div>
 
       {/* Expand button */}
@@ -292,11 +293,9 @@ function ExplorerNode({ data, id }: NodeProps) {
 
 const nodeTypes = { explorerNode: ExplorerNode }
 
-// ─── Custom Edge ──────────────────────────────────────────────────────────────
+// ─── Custom Edge (smooth bezier with parallel spreading) ─────────────────────
 
-const STRAIGHT_LINE_LENGTH = 100
-const LINE_SPACE = 30
-const SAME_LEVEL_THRESHOLD = 200
+const SIBLING_SPREAD = 15
 
 function AmountEdge({
   id,
@@ -311,75 +310,50 @@ function AmountEdge({
   target,
   data,
 }: EdgeProps) {
+  const { isDark } = useContext(ExplorerCallbacksCtx)
   const nodes = useNodes()
   const edges = useEdges()
 
-  const selfFromNode = nodes.find((n) => n.id === source)
-  const selfToNode = nodes.find((n) => n.id === target)
-
-  const sameLevelEdges = edges.filter((e) => {
-    const fromNode = nodes.find((n) => n.id === e.source)
-    const toNode = nodes.find((n) => n.id === e.target)
-    if (!fromNode || !toNode || !selfFromNode || !selfToNode) return false
-    return (
-      (Math.abs(fromNode.position.x - selfFromNode.position.x) < SAME_LEVEL_THRESHOLD &&
-        Math.abs(toNode.position.x - selfToNode.position.x) < SAME_LEVEL_THRESHOLD) ||
-      (Math.abs(fromNode.position.x - selfToNode.position.x) < SAME_LEVEL_THRESHOLD &&
-        Math.abs(toNode.position.x - selfFromNode.position.x) < SAME_LEVEL_THRESHOLD)
-    )
-  })
-
-  let labelX = (sourceX + targetX) / 2
-  let labelY = (sourceY + targetY) / 2
-  let path: string
-
-  if (sameLevelEdges.length <= 1) {
-    const midX = (sourceX + targetX) / 2
-    path = `M ${sourceX} ${sourceY} C ${midX} ${sourceY}, ${midX} ${targetY}, ${targetX} ${targetY}`
-  } else {
-    type EdgeInfo = { edgeId: string; idealY: number }
-    const edgeInfos: EdgeInfo[] = sameLevelEdges.map((e) => {
-      const sn = nodes.find((n) => n.id === e.source)
-      const tn = nodes.find((n) => n.id === e.target)
-      const sY = sn?.position?.y ?? 0
-      const tY = tn?.position?.y ?? 0
-      return { edgeId: e.id, idealY: (sY + tY) / 2 }
+  // Find edges sharing the same source node to fan them out
+  const sameSourceEdges = edges.filter((e) => e.source === source)
+  let spread = 0
+  if (sameSourceEdges.length > 1) {
+    const sorted = [...sameSourceEdges].sort((a, b) => {
+      const aTo = nodes.find((n) => n.id === a.target)
+      const bTo = nodes.find((n) => n.id === b.target)
+      return (aTo?.position.y ?? 0) - (bTo?.position.y ?? 0)
     })
-    edgeInfos.sort((a, b) => a.idealY - b.idealY)
-
-    const assignedYs: number[] = []
-    for (let i = 0; i < edgeInfos.length; i++) {
-      if (i === 0) {
-        assignedYs.push(edgeInfos[i].idealY)
-      } else {
-        assignedYs.push(Math.max(edgeInfos[i].idealY, assignedYs[i - 1] + LINE_SPACE))
-      }
-    }
-
-    const medianIdeal = edgeInfos[Math.floor(edgeInfos.length / 2)].idealY
-    const medianAssigned = assignedYs[Math.floor(assignedYs.length / 2)]
-    const shift = medianIdeal - medianAssigned
-    for (let i = 0; i < assignedYs.length; i++) {
-      assignedYs[i] += shift
-    }
-
-    const selfIdx = edgeInfos.findIndex((ei) => ei.edgeId === id)
-    const straightY = selfIdx >= 0 ? assignedYs[selfIdx] : (sourceY + targetY) / 2
-    const remainX = Math.max((Math.abs(targetX - sourceX) - STRAIGHT_LINE_LENGTH) / 2, 20)
-
-    if (targetX > sourceX) {
-      const c1EndX = sourceX + remainX
-      const c2StartX = targetX - remainX
-      path = `M ${sourceX},${sourceY} C ${sourceX + remainX * 0.5},${sourceY} ${sourceX + remainX * 0.5},${straightY} ${c1EndX},${straightY} L ${c2StartX},${straightY} C ${targetX - remainX * 0.5},${straightY} ${targetX - remainX * 0.5},${targetY} ${targetX},${targetY}`
-    } else {
-      const c1EndX = sourceX - remainX
-      const c2StartX = targetX + remainX
-      path = `M ${sourceX},${sourceY} C ${sourceX - remainX * 0.5},${sourceY} ${sourceX - remainX * 0.5},${straightY} ${c1EndX},${straightY} L ${c2StartX},${straightY} C ${targetX + remainX * 0.5},${straightY} ${targetX + remainX * 0.5},${targetY} ${targetX},${targetY}`
-    }
-
-    labelX = (sourceX + targetX) / 2
-    labelY = straightY
+    const idx = sorted.findIndex((e) => e.id === id)
+    spread = (idx - (sorted.length - 1) / 2) * SIBLING_SPREAD
   }
+
+  // Smooth S-curve bezier: control points pull horizontally
+  const dx = targetX - sourceX
+  const dirX = dx >= 0 ? 1 : -1
+  const cpOffset = Math.max(Math.abs(dx) * 0.4, 80)
+
+  const cp1x = sourceX + dirX * cpOffset
+  const cp1y = sourceY + spread
+  const cp2x = targetX - dirX * cpOffset
+  const cp2y = targetY
+
+  const path = `M ${sourceX},${sourceY} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${targetX},${targetY}`
+
+  // Label at bezier midpoint (t = 0.5)
+  const t = 0.5
+  const mt = 1 - t
+  const labelX = mt * mt * mt * sourceX + 3 * mt * mt * t * cp1x + 3 * mt * t * t * cp2x + t * t * t * targetX
+  const labelY = mt * mt * mt * sourceY + 3 * mt * mt * t * cp1y + 3 * mt * t * t * cp2y + t * t * t * targetY
+
+  // Tangent at t=0.5 for label rotation
+  const tx = -0.75 * sourceX - 0.75 * cp1x + 0.75 * cp2x + 0.75 * targetX
+  const ty = -0.75 * sourceY - 0.75 * cp1y + 0.75 * cp2y + 0.75 * targetY
+  let angle = Math.atan2(ty, tx) * (180 / Math.PI)
+  if (angle > 90) angle -= 180
+  if (angle < -90) angle += 180
+
+  const edgeData = data as Record<string, unknown>
+  const isEdgeDimmed = edgeData?.isDimmed === true
 
   return (
     <>
@@ -391,8 +365,10 @@ function AmountEdge({
               position: 'absolute',
               transformOrigin: 'center',
               textAlign: 'center',
-              transform: `translate(-50%, -100%) translate(${labelX}px,${labelY}px)`,
+              transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px) rotate(${angle}deg)`,
               pointerEvents: 'none',
+              opacity: isEdgeDimmed ? 0.15 : 1,
+              transition: 'opacity 0.2s',
             }}
             className="nodrag nopan"
           >
@@ -400,16 +376,16 @@ function AmountEdge({
               style={{
                 fontSize: 9,
                 fontWeight: 500,
-                color: 'var(--tx-body, #94a3b8)',
-                background: 'var(--tx-elevated, #1e293b)',
+                color: isDark ? '#94a3b8' : '#64748b',
+                background: isDark ? 'rgba(30,41,59,0.9)' : 'rgba(255,255,255,0.9)',
                 padding: '1px 5px',
                 borderRadius: 3,
                 whiteSpace: 'nowrap',
-                border: '1px solid var(--tx-divider, rgba(51,65,85,0.5))',
+                border: `1px solid ${isDark ? 'rgba(51,65,85,0.5)' : 'rgba(203,213,225,0.8)'}`,
               }}
             >
-              {(data as Record<string, string>)?.token && <TokenIcon token={(data as Record<string, string>).token} />}
-              {label as React.ReactNode}
+              {typeof edgeData?.token === 'string' && <TokenIcon token={edgeData.token} />}
+              {label as string}
             </div>
           </div>
         </EdgeLabelRenderer>
@@ -501,7 +477,7 @@ function layoutGraph(
       animated: false,
       data: { token },
       label: e.last_timestamp
-        ? `${e.formatted_amount} · ${new Date(e.last_timestamp * 1000).toISOString().replace('T', ' ').slice(0, 10)}`
+        ? `${e.formatted_amount} · ${new Date(e.last_timestamp > 1e12 ? e.last_timestamp : e.last_timestamp * 1000).toISOString().slice(0, 19).replace('T', ' ')}`
         : e.formatted_amount,
       style: {
         stroke: edgeColor,
@@ -604,14 +580,19 @@ export default function GraphExplorer({
   }, [flowNodes, setNodes, selectedAddress, hasSelection, pathInfo])
 
   useEffect(() => {
-    const highlighted = flowEdges.map((e) => ({
-      ...e,
-      style: {
-        ...e.style,
-        opacity: hasSelection && !pathInfo.pathEdges.has(e.id) ? 0.15 : 1,
-        strokeWidth: hasSelection && pathInfo.pathEdges.has(e.id) ? 2.5 : ((e.style as React.CSSProperties)?.strokeWidth ?? 1.5),
-      },
-    }))
+    const highlighted = flowEdges.map((e) => {
+      const isOnPath = pathInfo.pathEdges.has(e.id)
+      const isDimmed = hasSelection && !isOnPath
+      return {
+        ...e,
+        data: { ...e.data, isDimmed },
+        style: {
+          ...e.style,
+          opacity: isDimmed ? 0.15 : 1,
+          strokeWidth: hasSelection && isOnPath ? 2.5 : ((e.style as React.CSSProperties)?.strokeWidth ?? 1.5),
+        },
+      }
+    })
     setEdges(highlighted)
   }, [flowEdges, setEdges, hasSelection, pathInfo])
 
@@ -622,8 +603,8 @@ export default function GraphExplorer({
   }, [flowEdges])
 
   const ctxValue = useMemo(
-    () => ({ onNodeSelect, onNodeExpand, onNodeDelete, expandingNode }),
-    [onNodeSelect, onNodeExpand, onNodeDelete, expandingNode],
+    () => ({ onNodeSelect, onNodeExpand, onNodeDelete, expandingNode, isDark }),
+    [onNodeSelect, onNodeExpand, onNodeDelete, expandingNode, isDark],
   )
 
   return (
@@ -655,9 +636,9 @@ export default function GraphExplorer({
             <div
               style={{
                 fontSize: 11,
-                color: 'var(--tx-body, #94a3b8)',
-                background: 'var(--tx-elevated, #1e293b)',
-                border: '1px solid var(--tx-divider, rgba(51,65,85,0.5))',
+                color: isDark ? '#94a3b8' : '#64748b',
+                background: isDark ? '#1e293b' : '#ffffff',
+                border: `1px solid ${isDark ? 'rgba(51,65,85,0.5)' : 'rgba(203,213,225,0.8)'}`,
                 borderRadius: 6,
                 padding: '4px 10px',
               }}

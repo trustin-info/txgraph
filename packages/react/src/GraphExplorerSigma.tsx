@@ -44,18 +44,20 @@ const BASE_FONT_SIZE = 11
 
 // ─── Static styles ────────────────────────────────────────────────────────────
 
-const controlBtnStyle: React.CSSProperties = {
-  width: 28,
-  height: 28,
-  borderRadius: 4,
-  border: '1px solid var(--tx-divider, rgba(51,65,85,0.5))',
-  background: 'var(--tx-elevated, #1e293b)',
-  color: 'var(--tx-body, #94a3b8)',
-  cursor: 'pointer',
-  fontSize: 14,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
+function controlBtnStyle(isDark: boolean): React.CSSProperties {
+  return {
+    width: 28,
+    height: 28,
+    borderRadius: 4,
+    border: `1px solid ${isDark ? 'rgba(51,65,85,0.5)' : 'rgba(203,213,225,0.8)'}`,
+    background: isDark ? '#1e293b' : '#ffffff',
+    color: isDark ? '#94a3b8' : '#64748b',
+    cursor: 'pointer',
+    fontSize: 14,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
 }
 
 // ─── GraphExplorerSigma ───────────────────────────────────────────────────────
@@ -224,7 +226,7 @@ export default function GraphExplorerSigma({
     edges.forEach((e) => {
       try {
         const edgeLabel = e.last_timestamp
-          ? `${e.formatted_amount} · ${new Date(e.last_timestamp * 1000).toISOString().replace('T', ' ').slice(0, 10)}`
+          ? `${e.formatted_amount} · ${new Date(e.last_timestamp > 1e12 ? e.last_timestamp : e.last_timestamp * 1000).toISOString().slice(0, 19).replace('T', ' ')}`
           : e.formatted_amount
 
         g.addEdge(e.from, e.to, {
@@ -510,9 +512,9 @@ export default function GraphExplorerSigma({
           zIndex: 10,
         }}
       >
-        <button title="Zoom In" onClick={zoomIn} style={controlBtnStyle}>+</button>
-        <button title="Zoom Out" onClick={zoomOut} style={controlBtnStyle}>−</button>
-        <button title="Fit View" onClick={handleFitView} style={controlBtnStyle}>⊡</button>
+        <button title="Zoom In" onClick={zoomIn} style={controlBtnStyle(isDark)}>+</button>
+        <button title="Zoom Out" onClick={zoomOut} style={controlBtnStyle(isDark)}>−</button>
+        <button title="Fit View" onClick={handleFitView} style={controlBtnStyle(isDark)}>⊡</button>
       </div>
 
       {(stats || nodes.length > 0) && (
@@ -522,9 +524,9 @@ export default function GraphExplorerSigma({
             top: 10,
             right: 10,
             fontSize: 11,
-            color: 'var(--tx-body, #94a3b8)',
-            background: 'var(--tx-elevated, #1e293b)',
-            border: '1px solid var(--tx-divider, rgba(51,65,85,0.5))',
+            color: isDark ? '#94a3b8' : '#64748b',
+            background: isDark ? '#1e293b' : '#ffffff',
+            border: `1px solid ${isDark ? 'rgba(51,65,85,0.5)' : 'rgba(203,213,225,0.8)'}`,
             borderRadius: 6,
             padding: '4px 10px',
             zIndex: 10,
@@ -543,9 +545,9 @@ export default function GraphExplorerSigma({
           left: '50%',
           transform: 'translateX(-50%)',
           fontSize: 10,
-          color: 'var(--tx-caption, #64748b)',
-          background: 'var(--tx-elevated, #1e293b)',
-          border: '1px solid var(--tx-divider, rgba(51,65,85,0.5))',
+          color: isDark ? '#64748b' : '#94a3b8',
+          background: isDark ? '#1e293b' : '#ffffff',
+          border: `1px solid ${isDark ? 'rgba(51,65,85,0.5)' : 'rgba(203,213,225,0.8)'}`,
           borderRadius: 6,
           padding: '3px 10px',
           zIndex: 10,

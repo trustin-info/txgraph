@@ -21,7 +21,7 @@ export async function exploreGraph(params: GraphExploreParams): Promise<TxGraph>
     },
     body: JSON.stringify({
       address: params.address,
-      chain: params.chain,
+      chain_name: params.chain,
       direction: params.direction || 'out',
       max_depth: params.maxDepth || 3,
       from_date: params.fromDate,
