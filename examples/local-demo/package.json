@@ -1,0 +1,19 @@
+{
+  "name": "local-demo",
+  "private": true,
+  "dependencies": {
+    "@trustin/txgraph": "workspace:*",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4",
+    "typescript": "^5",
+    "vite": "^5"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  }
+}

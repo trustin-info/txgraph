@@ -1,0 +1,13 @@
+{
+  "name": "txgraph-monorepo",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r --filter './packages/*' build",
+    "dev:docs": "pnpm --filter docs dev",
+    "dev:demo": "pnpm --filter local-demo dev"
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8"
+  }
+}

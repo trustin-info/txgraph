@@ -1,0 +1,40 @@
+{
+  "name": "@trustin/txgraph",
+  "version": "0.1.0",
+  "description": "Blockchain transaction tracing graph components for React",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "dependencies": {
+    "@dagrejs/dagre": "^1.1.4",
+    "@sigma/edge-curve": "^3.1.0",
+    "@xyflow/react": "^12",
+    "graphology": "^0.25",
+    "graphology-layout": "^0.6",
+    "lucide-react": "^0.441.0",
+    "sigma": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18",
+    "tsup": "^8",
+    "typescript": "^5"
+  },
+  "files": ["dist"],
+  "license": "MIT",
+  "keywords": ["blockchain", "transaction", "graph", "aml", "crypto", "tracing", "react"]
+}
