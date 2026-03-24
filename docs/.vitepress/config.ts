@@ -21,6 +21,7 @@ export default defineConfig({
           { text: '🤖 Layer 2: AI Agent API', link: '/guide/layer2-agent' },
           { text: '💻 Layer 3: Local Demo', link: '/guide/layer3-demo' },
           { text: '🛠 Layer 4: Build Your Own', link: '/guide/layer4-component' },
+          { text: '⚡ Claude Code Skill', link: '/guide/claude-code-skill' },
         ],
       },
       {

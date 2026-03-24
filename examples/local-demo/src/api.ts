@@ -4,6 +4,7 @@ export interface GraphExploreParams {
   address: string
   chain: 'Ethereum' | 'Tron'
   direction?: 'in' | 'out' | 'all'
+  token?: string
   maxDepth?: number
   fromDate?: string  // YYYY-MM-DD
   toDate?: string
@@ -23,6 +24,7 @@ export async function exploreGraph(params: GraphExploreParams): Promise<TxGraph>
       address: params.address,
       chain_name: params.chain,
       direction: params.direction || 'out',
+      token: params.token || undefined,
       max_depth: params.maxDepth || 3,
       from_date: params.fromDate,
       to_date: params.toDate,

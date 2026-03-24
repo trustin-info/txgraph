@@ -48,13 +48,28 @@ function themeColors(isDark: boolean) {
       }
 }
 
+function useQueryParams() {
+  const params = new URLSearchParams(window.location.search)
+  return {
+    address: params.get('address') || '',
+    chain: (params.get('chain') as Chain) || null,
+    direction: (params.get('direction') as 'in' | 'out' | 'all') || null,
+    token: params.get('token') || '',
+    fromDate: params.get('from') || '',
+    toDate: params.get('to') || '',
+    autoExplore: params.has('address'),
+  }
+}
+
 export default function App() {
+  const qp = useQueryParams()
   const [isDark, setIsDark] = useState(true)
-  const [address, setAddress] = useState('')
-  const [chain, setChain] = useState<Chain>('Ethereum')
-  const [direction, setDirection] = useState<'in' | 'out' | 'all'>('out')
-  const [fromDate, setFromDate] = useState('')
-  const [toDate, setToDate] = useState('')
+  const [address, setAddress] = useState(qp.address)
+  const [chain, setChain] = useState<Chain>(qp.chain || (detectChain(qp.address) ?? 'Ethereum'))
+  const [direction, setDirection] = useState<'in' | 'out' | 'all'>(qp.direction || 'out')
+  const [token, setToken] = useState(qp.token)
+  const [fromDate, setFromDate] = useState(qp.fromDate)
+  const [toDate, setToDate] = useState(qp.toDate)
   const [renderer, setRenderer] = useState<Renderer>('reactflow')
   const [graph, setGraph] = useState<TxGraph | null>(null)
   const [loading, setLoading] = useState(false)
@@ -73,6 +88,10 @@ export default function App() {
   const c = themeColors(isDark)
 
   const handleExplore = useCallback(async () => {
+    // Clear query params after first explore to avoid re-triggering
+    if (window.location.search) {
+      window.history.replaceState({}, '', window.location.pathname)
+    }
     const addr = address.trim()
     if (!addr) return
     setLoading(true)
@@ -84,6 +103,7 @@ export default function App() {
         address: addr,
         chain,
         direction,
+        token: token || undefined,
         fromDate: fromDate || undefined,
         toDate: toDate || undefined,
       })
@@ -93,7 +113,16 @@ export default function App() {
     } finally {
       setLoading(false)
     }
-  }, [address, chain, direction, fromDate, toDate])
+  }, [address, chain, direction, token, fromDate, toDate])
+
+  // Auto-explore when opened with query params
+  const autoExploreRef = React.useRef(qp.autoExplore)
+  useEffect(() => {
+    if (autoExploreRef.current) {
+      autoExploreRef.current = false
+      handleExplore()
+    }
+  }, [handleExplore])
 
   const handleNodeExpand = useCallback(async (addr: string) => {
     if (!graph) return
@@ -103,6 +132,7 @@ export default function App() {
         address: addr,
         chain,
         direction,
+        token: token || undefined,
         maxDepth: 1,
       })
       const existingAddrs = new Set(graph.nodes.map((n) => n.address))
@@ -123,7 +153,7 @@ export default function App() {
     } finally {
       setExpandingNode(null)
     }
-  }, [graph, chain, direction])
+  }, [graph, chain, direction, token])
 
   const handleNodeDelete = useCallback((addr: string) => {
     if (!graph) return
@@ -207,6 +237,17 @@ export default function App() {
           <option value="out">Outflow</option>
           <option value="in">Inflow</option>
           <option value="all">All</option>
+        </select>
+
+        {/* Token */}
+        <select
+          value={token}
+          onChange={(e) => setToken(e.target.value)}
+          style={inputStyle}
+        >
+          <option value="">All Tokens</option>
+          <option value="usdt">USDT</option>
+          <option value="usdc">USDC</option>
         </select>
 
         {/* Date range */}

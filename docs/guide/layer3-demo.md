@@ -60,6 +60,26 @@ VITE_TRUSTIN_API_KEY=your_api_key_here
 | Click **✕** button | Remove node from graph |
 | Click background | Deselect |
 
+## URL Deep-Link
+
+You can open the demo with query parameters to pre-fill and auto-explore:
+
+```
+http://localhost:5173/?address=0xd8dA...6045&chain=Ethereum&direction=out&from=2024-01-01&to=2024-12-31
+```
+
+| Param | Description |
+|-------|-------------|
+| `address` | Blockchain address (triggers auto-explore on load) |
+| `chain` | `Ethereum` or `Tron` (auto-detected if omitted) |
+| `direction` | `in`, `out`, or `all` |
+| `from` | Start date filter (`YYYY-MM-DD`) |
+| `to` | End date filter (`YYYY-MM-DD`) |
+
+::: tip Claude Code Skill
+If you use [Claude Code](https://claude.com/claude-code), the `/trace-graph` skill automates the full workflow — see [Claude Code Skill](/guide/claude-code-skill).
+:::
+
 ## Demo Architecture
 
 ```

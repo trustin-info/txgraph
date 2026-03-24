@@ -4,7 +4,7 @@ The fastest way to trace blockchain transactions — no setup, no API key, no co
 
 ## What is TrustIn Explorer?
 
-[TrustIn Explorer](https://v2.trustin.info) is a full-featured AML (Anti-Money Laundering) investigation platform. It provides:
+[TrustIn Explorer](https://v2.trustin.info/explore) is a full-featured AML (Anti-Money Laundering) investigation platform. It provides:
 
 - **Visual transaction graph** — trace fund flows across Ethereum and Tron
 - **Risk scoring** — AI-powered risk assessment for every address
@@ -14,7 +14,7 @@ The fastest way to trace blockchain transactions — no setup, no API key, no co
 
 ## Getting Started
 
-1. Visit [v2.trustin.info](https://v2.trustin.info)
+1. Visit [v2.trustin.info](https://v2.trustin.info/explore)
 2. Enter a blockchain address (Ethereum or Tron)
 3. Select direction: **Inflow** / **Outflow** / **Both**
 4. Click **Explore** — the graph loads instantly
