@@ -1,5 +1,6 @@
 node_modules/
 dist/
+!packages/react/dist/
 .vitepress/dist/
 .vitepress/cache/
 *.local

@@ -1,0 +1,59 @@
+name: Build & Commit Dist
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/react/src/**'
+      - 'packages/react/package.json'
+      - 'packages/react/tsup.config.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: packages/react/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: packages/react
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: packages/react
+        run: pnpm build
+
+      - name: Commit dist
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add packages/react/dist/
+          git diff --staged --quiet || git commit -m "build: auto-update dist [skip ci]"
+          git push
+
+      - name: Notify web-app-v2
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          if [ -n "$GH_TOKEN" ]; then
+            curl -s -X POST \
+              -H "Authorization: token $GH_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/trustin-info/web-app-v2/dispatches \
+              -d '{"event_type":"txgraph-updated"}' && echo "Notified web-app-v2" || echo "Notification failed (non-fatal)"
+          else
+            echo "GH_TOKEN not set, skipping web-app-v2 notification"
+          fi
