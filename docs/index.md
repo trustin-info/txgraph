@@ -17,18 +17,18 @@ hero:
 
 features:
   - icon: 🌐
-    title: Use TrustIn Explorer
-    details: Instantly trace transactions at v2.trustin.info — no setup required. Full-featured AML investigation tool.
-    link: /guide/layer1-product
-    linkText: Open Explorer
+    title: Try Live Demo
+    details: Instantly trace transactions in the browser — no setup required. Supports TrustIn API and on-chain data sources (Etherscan, Tronscan).
+    link: /demo
+    linkText: Open Demo
   - icon: 🤖
     title: AI Agent API
     details: Self-register your AI agent in one request and start tracing addresses immediately. No account needed — 200 requests/day free quota. MCP-compatible.
     link: /guide/layer2-agent
     linkText: Agent Setup
   - icon: 💻
-    title: Run Demo Locally
-    details: Clone the example project and connect to TrustIn API with your API key. Full control over data and UI.
+    title: Run Locally
+    details: Clone the repo and run TxGraph locally for full control. Connect to TrustIn API or use on-chain data via Etherscan/Tronscan.
     link: /guide/layer3-demo
     linkText: Setup Guide
   - icon: 🛠

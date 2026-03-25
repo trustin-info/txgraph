@@ -3,6 +3,8 @@
   "private": true,
   "scripts": {
     "build": "pnpm -r --filter './packages/*' build",
+    "build:demo-for-docs": "DEMO_BASE=/txgraph/demo/ pnpm --filter local-demo build && rm -rf docs/public/demo && cp -r examples/local-demo/dist docs/public/demo",
+    "build:docs": "pnpm build && pnpm build:demo-for-docs && pnpm --filter docs build",
     "dev:docs": "pnpm --filter docs dev",
     "dev:demo": "pnpm --filter local-demo dev"
   },

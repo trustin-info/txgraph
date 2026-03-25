@@ -3,6 +3,7 @@ dist/
 !packages/react/dist/
 .vitepress/dist/
 .vitepress/cache/
+docs/public/demo/
 *.local
 .env
 .DS_Store

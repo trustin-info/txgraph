@@ -1,4 +1,13 @@
 import type { TxGraph } from '@trustin/txgraph'
+import {
+  GraphBuilder,
+  TrustInAdapter,
+  createChainAdapter,
+  type DataSource,
+  type BuilderOptions,
+} from '@trustin/txgraph-core'
+
+export type DataSourceType = 'trustin' | 'onchain'
 
 export interface GraphExploreParams {
   address: string
@@ -6,34 +15,57 @@ export interface GraphExploreParams {
   direction?: 'in' | 'out' | 'all'
   token?: string
   maxDepth?: number
-  fromDate?: string  // YYYY-MM-DD
+  fromDate?: string
   toDate?: string
+  dataSource?: DataSourceType
+}
+
+function getAdapter(dataSource: DataSourceType, chain: string): DataSource {
+  if (dataSource === 'trustin') {
+    return new TrustInAdapter({
+      apiUrl: import.meta.env.VITE_TRUSTIN_API_URL || 'https://api.trustin.info',
+      apiKey: import.meta.env.VITE_TRUSTIN_API_KEY as string | undefined,
+    })
+  }
+
+  return createChainAdapter(chain, {
+    etherscan: {
+      apiKey: import.meta.env.VITE_ETHERSCAN_API_KEY as string | undefined,
+    },
+    tronscan: {
+      apiKey: import.meta.env.VITE_TRONSCAN_API_KEY as string | undefined,
+    },
+  })
 }
 
 export async function exploreGraph(params: GraphExploreParams): Promise<TxGraph> {
-  const apiUrl = import.meta.env.VITE_TRUSTIN_API_URL || 'https://api.trustin.info'
-  const apiKey = import.meta.env.VITE_TRUSTIN_API_KEY as string | undefined
+  const dataSource = params.dataSource || 'trustin'
+  const adapter = getAdapter(dataSource, params.chain)
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+  const options: BuilderOptions = {
+    direction: params.direction || 'out',
+    token: params.token || undefined,
+    maxDepth: params.maxDepth || 3,
+    fromDate: params.fromDate,
+    toDate: params.toDate,
   }
-  if (apiKey) headers['X-Api-Key'] = apiKey
 
-  const res = await fetch(`${apiUrl}/api/v1/graph_explore`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      address: params.address,
-      chain_name: params.chain,
-      direction: params.direction || 'out',
-      token: params.token || undefined,
-      max_depth: params.maxDepth || 3,
-      from_date: params.fromDate,
-      to_date: params.toDate,
-    }),
-  })
+  const builder = new GraphBuilder(adapter, options)
+  return builder.explore(params.address, params.chain)
+}
 
-  if (!res.ok) throw new Error(`API error: ${res.status} ${await res.text()}`)
-  const data = await res.json()
-  return data.data as TxGraph
+export async function expandNode(
+  params: GraphExploreParams,
+  existingGraph: TxGraph
+): Promise<TxGraph> {
+  const dataSource = params.dataSource || 'trustin'
+  const adapter = getAdapter(dataSource, params.chain)
+
+  const options: BuilderOptions = {
+    direction: params.direction || 'out',
+    token: params.token || undefined,
+  }
+
+  const builder = new GraphBuilder(adapter, options)
+  return builder.expandNode(params.address, params.chain, existingGraph)
 }

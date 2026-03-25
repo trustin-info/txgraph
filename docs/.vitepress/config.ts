@@ -13,6 +13,7 @@ export default defineConfig({
     nav: [
       { text: 'Guide', link: '/guide/layer1-product' },
       { text: 'API', link: '/api/components' },
+      { text: 'Demo', link: '/demo' },
       { text: 'GitHub', link: 'https://github.com/Blackman99/txgraph' },
     ],
     sidebar: [
@@ -20,7 +21,7 @@ export default defineConfig({
         text: 'Getting Started',
         items: [
           { text: 'Introduction', link: '/' },
-          { text: '🌐 Layer 1: Use Explorer', link: '/guide/layer1-product' },
+          { text: '🌐 Layer 1: Live Demo', link: '/guide/layer1-product' },
           { text: '🤖 Layer 2: AI Agent API', link: '/guide/layer2-agent' },
           { text: '💻 Layer 3: Local Demo', link: '/guide/layer3-demo' },
           { text: '🛠 Layer 4: Build Your Own', link: '/guide/layer4-component' },

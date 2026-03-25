@@ -1,23 +1,21 @@
-# 🌐 Use TrustIn Explorer
+# 🌐 Try the Live Demo
 
 The fastest way to trace blockchain transactions — no setup, no API key, no code.
 
-## What is TrustIn Explorer?
+## Open the Demo
 
-[TrustIn Explorer](https://v2.trustin.info/explore) is a full-featured AML (Anti-Money Laundering) investigation platform. It provides:
+Go to the [Live Demo](/demo) page to start tracing immediately. The demo supports two data source modes:
 
-- **Visual transaction graph** — trace fund flows across Ethereum and Tron
-- **Risk scoring** — AI-powered risk assessment for every address
-- **Entity tagging** — identify exchanges, mixers, sanctioned addresses
-- **Multi-hop tracing** — follow funds through multiple hops
-- **Inflow & outflow analysis** — see where funds came from and where they went
+- **TrustIn** — uses the TrustIn API with risk scoring and entity tagging
+- **On-Chain** — fetches raw data directly from Etherscan (Ethereum) or Tronscan (Tron)
 
 ## Getting Started
 
-1. Visit [v2.trustin.info](https://v2.trustin.info/explore)
+1. Open the [Live Demo](/demo)
 2. Enter a blockchain address (Ethereum or Tron)
-3. Select direction: **Inflow** / **Outflow** / **Both**
-4. Click **Explore** — the graph loads instantly
+3. Select data source: **TrustIn** or **On-Chain**
+4. Select direction: **Inflow** / **Outflow** / **All**
+5. Click **Explore** — the graph loads instantly
 
 ## Features
 
@@ -32,6 +30,10 @@ Each node (address) is colored by risk:
 | 🟢 Green | Low | Verified exchange, known entity |
 | ⚫ Gray | Unknown | No data available |
 
+::: tip
+Risk scoring and entity tags are only available when using the **TrustIn** data source. On-Chain mode shows all nodes as "unknown" risk.
+:::
+
 ### Expanding the Graph
 
 - Click any node to see its details
@@ -44,11 +46,11 @@ Switch between two renderers:
 - **ReactFlow** — best for interactive exploration, drag nodes, zoom
 - **Sigma.js** — best for large graphs (1000+ nodes), WebGL-accelerated
 
-## When to use TrustIn Explorer
+## When to use the Demo
 
-✅ Quick investigation — need an answer now  
-✅ No technical setup required  
-✅ Full feature set including AI risk scoring  
+✅ Quick investigation — need an answer now
+✅ No technical setup required
+✅ Compare TrustIn vs on-chain data
 ✅ Regular compliance checks
 
 → For programmatic access, see [Layer 2: AI Agent API](/guide/layer2-agent). To run locally, see [Layer 3: Local Demo](/guide/layer3-demo). To embed in your own app, see [Layer 4: Build Your Own](/guide/layer4-component).

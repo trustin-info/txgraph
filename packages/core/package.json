@@ -1,0 +1,26 @@
+{
+  "name": "@trustin/txgraph-core",
+  "version": "0.1.0",
+  "description": "Multi-source data layer for blockchain transaction graph exploration",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "devDependencies": {
+    "tsup": "^8",
+    "typescript": "^5"
+  },
+  "files": ["dist"],
+  "license": "MIT",
+  "keywords": ["blockchain", "transaction", "graph", "etherscan", "tronscan", "trustin"]
+}

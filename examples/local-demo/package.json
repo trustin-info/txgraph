@@ -3,10 +3,13 @@
   "private": true,
   "dependencies": {
     "@trustin/txgraph": "workspace:*",
+    "@trustin/txgraph-core": "workspace:*",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
     "@vitejs/plugin-react": "^4",
     "typescript": "^5",
     "vite": "^5"

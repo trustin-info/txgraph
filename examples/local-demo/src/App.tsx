@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { GraphExplorer, GraphExplorerSigma } from '@trustin/txgraph'
 import type { TxNode, TxGraph } from '@trustin/txgraph'
-import { exploreGraph } from './api'
+import { exploreGraph, expandNode } from './api'
+import type { DataSourceType } from './api'
 
 type Renderer = 'reactflow' | 'sigma'
 type Chain = 'Ethereum' | 'Tron'
@@ -70,6 +71,7 @@ export default function App() {
   const [token, setToken] = useState(qp.token)
   const [fromDate, setFromDate] = useState(qp.fromDate)
   const [toDate, setToDate] = useState(qp.toDate)
+  const [dataSource, setDataSource] = useState<DataSourceType>('trustin')
   const [renderer, setRenderer] = useState<Renderer>('reactflow')
   const [graph, setGraph] = useState<TxGraph | null>(null)
   const [loading, setLoading] = useState(false)
@@ -106,6 +108,7 @@ export default function App() {
         token: token || undefined,
         fromDate: fromDate || undefined,
         toDate: toDate || undefined,
+        dataSource,
       })
       setGraph(data)
     } catch (e) {
@@ -113,7 +116,7 @@ export default function App() {
     } finally {
       setLoading(false)
     }
-  }, [address, chain, direction, token, fromDate, toDate])
+  }, [address, chain, direction, token, fromDate, toDate, dataSource])
 
   // Auto-explore when opened with query params
   const autoExploreRef = React.useRef(qp.autoExplore)
@@ -128,32 +131,24 @@ export default function App() {
     if (!graph) return
     setExpandingNode(addr)
     try {
-      const data = await exploreGraph({
-        address: addr,
-        chain,
-        direction,
-        token: token || undefined,
-        maxDepth: 1,
-      })
-      const existingAddrs = new Set(graph.nodes.map((n) => n.address))
-      const newNodes = data.nodes.filter((n) => !existingAddrs.has(n.address))
-      const existingEdgeKeys = new Set(graph.edges.map((e) => `${e.from}->${e.to}`))
-      const newEdges = data.edges.filter((e) => !existingEdgeKeys.has(`${e.from}->${e.to}`))
-      setGraph({
-        nodes: [...graph.nodes, ...newNodes],
-        edges: [...graph.edges, ...newEdges],
-        stats: {
-          total_nodes: graph.nodes.length + newNodes.length,
-          total_edges: graph.edges.length + newEdges.length,
-          stopped_nodes: graph.stats?.stopped_nodes ?? 0,
+      const merged = await expandNode(
+        {
+          address: addr,
+          chain,
+          direction,
+          token: token || undefined,
+          maxDepth: 1,
+          dataSource,
         },
-      })
+        graph
+      )
+      setGraph(merged)
     } catch (e) {
       console.error('Expand failed:', e)
     } finally {
       setExpandingNode(null)
     }
-  }, [graph, chain, direction, token])
+  }, [graph, chain, direction, token, dataSource])
 
   const handleNodeDelete = useCallback((addr: string) => {
     if (!graph) return
@@ -226,6 +221,16 @@ export default function App() {
         >
           <option>Ethereum</option>
           <option>Tron</option>
+        </select>
+
+        {/* Data source */}
+        <select
+          value={dataSource}
+          onChange={(e) => setDataSource(e.target.value as DataSourceType)}
+          style={inputStyle}
+        >
+          <option value="trustin">TrustIn</option>
+          <option value="onchain">On-Chain</option>
         </select>
 
         {/* Direction */}
@@ -321,7 +326,9 @@ export default function App() {
           <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, color: c.dimmed }}>
             <div style={{ fontSize: 48 }}>🔍</div>
             <div style={{ fontSize: 15 }}>Enter an address and click <strong>Explore</strong></div>
-            <div style={{ fontSize: 12, color: c.dimmed }}>Powered by TrustIn API</div>
+            <div style={{ fontSize: 12, color: c.dimmed }}>
+              {dataSource === 'trustin' ? 'Powered by TrustIn API' : `On-Chain via ${chain === 'Tron' ? 'Tronscan' : 'Etherscan'}`}
+            </div>
           </div>
         )}
         {(graph || loading) && (
