@@ -13,7 +13,7 @@ export default defineConfig({
     nav: [
       { text: 'Guide', link: '/guide/layer1-product' },
       { text: 'API', link: '/api/components' },
-      { text: 'Demo', link: '/demo' },
+      { text: 'Demo', link: '/demo/', target: '_self' },
       { text: 'GitHub', link: 'https://github.com/Blackman99/txgraph' },
     ],
     sidebar: [

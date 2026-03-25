@@ -4,14 +4,14 @@ The fastest way to trace blockchain transactions — no setup, no API key, no co
 
 ## Open the Demo
 
-Go to the [Live Demo](/demo) page to start tracing immediately. The demo supports two data source modes:
+Go to the [Live Demo](/txgraph/demo/) page to start tracing immediately. The demo supports two data source modes:
 
 - **TrustIn** — uses the TrustIn API with risk scoring and entity tagging
 - **On-Chain** — fetches raw data directly from Etherscan (Ethereum) or Tronscan (Tron)
 
 ## Getting Started
 
-1. Open the [Live Demo](/demo)
+1. Open the [Live Demo](/txgraph/demo/)
 2. Enter a blockchain address (Ethereum or Tron)
 3. Select data source: **TrustIn** or **On-Chain**
 4. Select direction: **Inflow** / **Outflow** / **All**
