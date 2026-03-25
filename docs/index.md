@@ -19,7 +19,7 @@ features:
   - icon: 🌐
     title: Try Live Demo
     details: Instantly trace transactions in the browser — no setup required. Supports TrustIn API and on-chain data sources (Etherscan, Tronscan).
-    link: /demo/
+    link: /txgraph/demo/
     linkText: Open Demo
   - icon: 🤖
     title: AI Agent API

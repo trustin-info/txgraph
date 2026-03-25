@@ -3,7 +3,7 @@
 Run TxGraph as a local Vite app with multi-source support (TrustIn API or on-chain via Etherscan/Tronscan). Ideal for evaluation, internal tooling, or as a starting point for your own integration.
 
 ::: tip Try without setup
-You can also try the [Live Demo](/demo/) directly in this documentation site — no installation needed.
+You can also try the <a href="/txgraph/demo/" target="_self">Live Demo</a> directly in this documentation site — no installation needed.
 :::
 
 ## Prerequisites
