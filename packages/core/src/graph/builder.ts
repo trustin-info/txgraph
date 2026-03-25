@@ -1,7 +1,6 @@
 import type { TxGraph, TxNode, TxEdge } from '../types'
 import type { DataSource } from '../adapter/types'
 import { aggregateTransactions } from './aggregator'
-import { RateLimiter } from '../utils/rate-limiter'
 
 export interface BuilderOptions {
   maxDepth?: number
@@ -74,7 +73,6 @@ export class GraphBuilder {
     const nodes = new Map<string, TxNode>()
     const allEdges: TxEdge[] = []
     const visited = new Set<string>()
-    const rateLimiter = new RateLimiter(this.adapter.capabilities.rateLimit)
 
     const rootNode: TxNode = {
       address: rootAddress,
@@ -105,8 +103,6 @@ export class GraphBuilder {
           totalNodes: nodes.size,
         })
 
-        await rateLimiter.acquire()
-
         let page = 1
         let hasMore = true
         const allTxs = []
@@ -123,10 +119,6 @@ export class GraphBuilder {
           allTxs.push(...result.transactions)
           hasMore = result.hasMore
           page++
-
-          if (hasMore) {
-            await rateLimiter.acquire()
-          }
         }
 
         const edges = aggregateTransactions(allTxs, this.options.direction)
@@ -203,9 +195,6 @@ export class GraphBuilder {
     chain: string,
     existing: TxGraph
   ): Promise<TxGraph> {
-    const rateLimiter = new RateLimiter(this.adapter.capabilities.rateLimit)
-    await rateLimiter.acquire()
-
     let page = 1
     let hasMore = true
     const allTxs = []
@@ -222,7 +211,6 @@ export class GraphBuilder {
       allTxs.push(...result.transactions)
       hasMore = result.hasMore
       page++
-      if (hasMore) await rateLimiter.acquire()
     }
 
     const edges = aggregateTransactions(allTxs, this.options.direction)

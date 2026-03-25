@@ -4,6 +4,7 @@ import type {
   FetchTxOptions,
   RawTransaction,
 } from '../../adapter/types'
+import { RateLimiter } from '../../utils/rate-limiter'
 
 export interface TronscanAdapterConfig {
   apiKey?: string
@@ -19,15 +20,18 @@ export class TronscanAdapter implements DataSource {
     hasAddressTags: false,
     returnsPrebuiltGraph: false,
     supportedChains: ['Tron'],
-    rateLimit: 3,
+    rateLimit: 1,
   }
 
   private apiKey: string
   private baseUrl: string
+  private limiter: RateLimiter
 
   constructor(config: TronscanAdapterConfig = {}) {
     this.apiKey = config.apiKey || ''
     this.baseUrl = config.baseUrl || DEFAULT_BASE_URL
+    // Tronscan free tier is very restrictive from browser cross-origin
+    this.limiter = new RateLimiter(config.apiKey ? 3 : 1)
   }
 
   async fetchTransactions(
@@ -36,11 +40,12 @@ export class TronscanAdapter implements DataSource {
     const pageSize = opts.pageSize ?? 50
     const start = ((opts.page ?? 1) - 1) * pageSize
 
-    // Fetch TRX transfers and TRC20 transfers in parallel
-    const [trxTxs, trc20Txs] = await Promise.all([
-      this.fetchTrxTransfers(opts.address, start, pageSize),
-      this.fetchTrc20Transfers(opts.address, start, pageSize),
-    ])
+    // Sequential to respect rate limits
+    await this.limiter.acquire()
+    const trxTxs = await this.fetchTrxTransfers(opts.address, start, pageSize)
+
+    await this.limiter.acquire()
+    const trc20Txs = await this.fetchTrc20Transfers(opts.address, start, pageSize)
 
     let allTxs = [...trxTxs, ...trc20Txs]
 

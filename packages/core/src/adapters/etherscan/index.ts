@@ -4,6 +4,7 @@ import type {
   FetchTxOptions,
   RawTransaction,
 } from '../../adapter/types'
+import { RateLimiter } from '../../utils/rate-limiter'
 
 export interface EtherscanAdapterConfig {
   apiKey?: string
@@ -20,15 +21,17 @@ export class EtherscanAdapter implements DataSource {
     hasAddressTags: false,
     returnsPrebuiltGraph: false,
     supportedChains: ['Ethereum'],
-    rateLimit: 5,
+    rateLimit: 2,
   }
 
   private apiKey: string
   private baseUrl: string
+  private limiter: RateLimiter
 
   constructor(config: EtherscanAdapterConfig = {}) {
     this.apiKey = config.apiKey || ''
     this.baseUrl = config.baseUrl || DEFAULT_BASE_URL
+    this.limiter = new RateLimiter(config.apiKey ? 5 : 2)
   }
 
   async fetchTransactions(
@@ -37,11 +40,12 @@ export class EtherscanAdapter implements DataSource {
     const page = opts.page ?? 1
     const pageSize = opts.pageSize ?? 100
 
-    // Fetch normal transactions and token transfers in parallel
-    const [normalTxs, tokenTxs] = await Promise.all([
-      this.fetchNormalTxs(opts.address, page, pageSize),
-      this.fetchTokenTxs(opts.address, page, pageSize),
-    ])
+    // Sequential to respect rate limits
+    await this.limiter.acquire()
+    const normalTxs = await this.fetchNormalTxs(opts.address, page, pageSize)
+
+    await this.limiter.acquire()
+    const tokenTxs = await this.fetchTokenTxs(opts.address, page, pageSize)
 
     let allTxs = [...normalTxs, ...tokenTxs]
 
