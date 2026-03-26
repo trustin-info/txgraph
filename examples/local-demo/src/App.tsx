@@ -56,7 +56,7 @@ function useQueryParams() {
   const params = new URLSearchParams(window.location.search)
   return {
     address: params.get('address') || '',
-    chain: (params.get('chain') as Chain) || null,
+    chain: (params.get('chain') as ChainName) || null,
     direction: (params.get('direction') as 'in' | 'out' | 'all') || null,
     token: params.get('token') || '',
     fromDate: params.get('from') || '',
@@ -357,7 +357,7 @@ export default function App() {
 
         {/* Sample button */}
         <button
-          onClick={() => setAddress(SAMPLE_ADDRESSES[chain])}
+          onClick={() => setAddress(SAMPLE_ADDRESSES[chain] || '')}
           style={{ ...inputStyle, cursor: 'pointer', fontSize: 12, color: c.muted }}
         >
           Sample
